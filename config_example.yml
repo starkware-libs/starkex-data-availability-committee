@@ -1,0 +1,60 @@
+application:
+  config:
+    availability_gateway_endpoint: https://availability-proxy:443
+    polling_interval: 1
+    validate_orders: False
+    validate_rollup: False
+    private_key_path: /private_key.txt
+    fact_storage_cache_size: 65536
+    certificates_path: /certs
+    http_request_timeout: 300
+    committee_objects:
+      - name: vault
+        class: starkware.starkware_utils.objects.starkex_state.VaultState
+        tree_class: starkware.starkware_utils.commitment_tree.merkle_tree.merkle_tree.MerkleTree
+        merkle_height: '31'
+      - name: rollup_vault
+        class: starkware.starkware_utils.objects.starkex_state.VaultState
+        tree_class: starkware.starkware_utils.commitment_tree.merkle_tree.merkle_tree.MerkleTree
+        merkle_height: '31'
+      - name: order
+        class: starkware.starkware_utils.objects.starkex_state.OrderState
+        tree_class: starkware.starkware_utils.commitment_tree.patricia_tree.patricia_tree.PatriciaTree
+        merkle_height: '251'
+    batch_data_response_class_path: starkware.starkware_utils.objects.starkex_state.BatchDataResponse
+
+LOGGING:
+  version: 1
+  disable_existing_loggers: False
+  formatters:
+    plaintext:
+      format: "[%(asctime)s] %(process)d %(levelname)s %(name)s:%(funcName)s:%(lineno)s - %(message)s"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: plaintext
+      stream: ext://sys.stdout
+  loggers:
+    root:
+      level: INFO
+      handlers: [console]
+    committee:
+      level: INFO
+      handlers: [console]
+    starkware.starkware_utils:
+      handlers: [console]
+      level: DEBUG
+    starkware.storage:
+      handlers: [console]
+      level: DEBUG
+
+STORAGE:
+  class: starkware.storage.aerospike_storage_threadpool.AerospikeLayeredStorage
+  config:
+    hosts:
+      - committee-aerospike:3000
+    namespace: starkware
+    aero_set: starkware
+    index_bits: 28
+

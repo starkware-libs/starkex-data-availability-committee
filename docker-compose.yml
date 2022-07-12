@@ -1,0 +1,25 @@
+version: "3.3"
+services:
+  committee-aerospike:
+    image: aerospike/aerospike-server:4.7.0.5
+    ports:
+      - "3000:3000"
+    environment:
+      - NAMESPACE=starkware
+    ulimits:
+      nofile:
+        soft: 15000
+        hard: 15000
+
+  committee:
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    volumes:
+      - ./config.yml:/config.yml:ro
+      - ./private_key.txt:/private_key.txt:ro
+      - ./certs/user.crt:/certs/user.crt
+      - ./certs/server.crt:/certs/server.crt
+      - ./certs/user.key:/certs/user.key
+    depends_on:
+      - committee-aerospike
