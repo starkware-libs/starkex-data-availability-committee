@@ -81,6 +81,10 @@ validate_node_endpoint = validate_url(
     url_name="Node endpoint", schemes={"http", "https"}, require_full_url=False
 )
 
+validate_alternative_endpoint = validate_url(
+    url_name="Alternative transactions endpoint", schemes={"http", "https"}, require_full_url=True
+)
+
 
 def validate_one_of(
     field_name: str, *, choices: Iterable, allow_none: bool = False

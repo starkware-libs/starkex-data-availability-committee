@@ -37,6 +37,7 @@ The docker image expects to find a `config.yaml` file in its root directory. Thi
 mounted to the docker at run time.
 
 Service operators are expected to do the following:
+For StarkEx Perpetual committee, start by replacing the content of `config.yml` file with the content of `perpetual_config.yml`.
 The `config.yml` file should be edited to reflect the specific configuration of the Committee Service operator.
 In particular, this should include the following information:
 - `private_key_path` - where the private key for signing availability claims is mounted.
@@ -48,7 +49,7 @@ This information should be written in the docker-compose file as well, in the co
 The default, both in the config and in the docker-compose is to have a file named config.yml at the root directory containing the config,
 a file named private_key.txt in the root directory containing the private key
 and a directory named certs in the root directory containing server.crt, user.crt and user.key.
-Your files layout should resemble th e following:
+Your files layout should resemble the following:
   > ROOT:
     | config.yml
     | private_key.txt

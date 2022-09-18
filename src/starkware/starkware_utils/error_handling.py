@@ -86,6 +86,8 @@ class StarkErrorCode(ErrorCode):
     MIGRATED_PIPELINE_OBJECT_MISSING = auto()
     #: The chain ID does not exist in storage.
     MISSING_BLOCKCHAIN_ID = auto()
+    #: The required endpoint configuration is not available in the DB.
+    MISSING_ENDPOINT_CONFIGURATION = auto()
     #: One of the fee objects is missing while the other exists.
     MISSING_FEE_OBJECT = auto()
     #: Nested multi-transaction (multi-transaction inside multi-transaction)
