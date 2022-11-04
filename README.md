@@ -26,6 +26,13 @@ Typically the reference batch is the immediate predecessor of the new batch. How
 nature of the blockchain, it is possible that a batch created by the Starkware application is later
 reverted and replaced by a different batch.
 
+## Setting-up Persistent Data Storage
+Before you start, you will need to set up a storage directory for the committee Aerospike database.
+To do that:
+- Create a directory. Disk-space requirement: 40 GB.
+- Edit docker-compose.yml. In line 10, replace `<host volume>` with the directory path.
+  For example.: `- ./committee-storage:/opt/aerospike/data/`
+
 ## Building the Committee Service
 In order to build the committee service, use the following line from the root directory:
 ```
