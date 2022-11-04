@@ -2,12 +2,18 @@
 
 **A service to validate the data availability for a Starkware application**
 
+## Disclaimer
+The source code provided in this repo is meant to serve as a <em>reference implementation</em> for
+anyone who wishes to run a StarkEx data-availability committee node.
+This implementation **should not be used to run a committee node in a production environment!**
+
 ## Description
 The Starkware application holds a state of accounts that are updated according to an
 ordered series of transactions. It processes transactions in batches of varying sizes, based on size
 and time criteria. Following each batch, a Merkle tree is computed over all accounts resulting in
 a Merkle root representing the state following the batch which is eventually to be committed
-on-chain. Since only the root is committed on-chain, some mechanism is required to guarantee data-availability in case the operator goes rogue.
+on-chain. Since only the root is committed on-chain, some mechanism is required to guarantee data-availability
+in case the operator goes rogue (thus assuring end users of self-custody).
 
 The Starkware application relies on a committee to guarantee data-availability of the off-chain data.
 Each committee member is responsible for keeping track of the data associated with
@@ -16,6 +22,12 @@ each root and signing an availability claim to attest to the data-availability.
 The Starkware application operator provides the committee members access to an Availability Gateway.
 The Availability Gateway allows the committee members to obtain information about new batches
 and to submit signed availability claims.
+
+It is important to note that in order for batches to be accepted onchain they must be signed by a
+minimum number of committee members (depending on the application configuration), including all
+members who are defined as **mandatory signers**.
+
+## What is a batch?
 
 A batch is uniquely identifiable by its batch_id.
 The information about a new batch includes a reference batch_id and a list of (index, value) pairs
@@ -26,13 +38,10 @@ Typically the reference batch is the immediate predecessor of the new batch. How
 nature of the blockchain, it is possible that a batch created by the Starkware application is later
 reverted and replaced by a different batch.
 
-## Building the Committee Service
-In order to build the committee service, use the following line from the root directory:
-```
-docker-compose build
-```
-
 ## Running the Committee Service
+
+### Configuration
+
 The docker image expects to find a `config.yaml` file in its root directory. This file should be
 mounted to the docker at run time.
 
@@ -46,7 +55,7 @@ In particular, this should include the following information:
 - `availability_gateway_endpoint` - The address of the Availability Gateway.
 This information should be written in the docker-compose file as well, in the committee volumes section.
 
-The default, both in the config and in the docker-compose is to have a file named config.yml at the root directory containing the config,
+The default, for both the config and the docker-compose, is to have a file named config.yml at the root directory containing the config,
 a file named private_key.txt in the root directory containing the private key
 and a directory named certs in the root directory containing server.crt, user.crt and user.key.
 Your files layout should resemble the following:
@@ -58,9 +67,41 @@ Your files layout should resemble the following:
       | user.crt
       | user.key
 
+### Storage
+
 A committee member service operator is expected to run a database
 and update the STORAGE section of the `config.yml` with the information required to connect to said
 database. The reference implementation uses an Aerospike database.
+
+#### Setting-up Persistent Data Storage
+In order to set up a storage directory for the committee Aerospike database:
+- Create a directory. Disk-space requirement: 40 GB.
+- Edit docker-compose.yml. In line 10, replace `<host volume>` with the directory path.
+  For example.: `- ./committee-storage:/opt/aerospike/data/`
+
+#### Mandatory Signers In Production
+For committee members that are defined as mandatory signers we recommend the following settings for
+the production environment:
+
+- EC2 with strong consistency.
+  - For Aerospike this will require the enterprise edition. For more details [click here](https://docs.aerospike.com/server/operations/configure/consistency).
+- Recommend setting a `replication-factor` of `2` (the default is `1`).
+  - This will require setting up 3 servers.
+- Make sure the `default-ttl` setting is set to `0`.
+
+#### Non-Mandatory Signers
+For committee members that are defined as non-mandatory signers we recommend the following settings
+for the production environment:
+
+- EC2 is recommended.
+  - Alternatively, multiple instances of docker-compose should be deployed to offer some resilience.
+- Make sure the `default-ttl` setting is set to `0`.
+
+## Deployment
+In order to build the committee service, use the following line from the root directory:
+```
+docker-compose build
+```
 
 In order to run the committee service, use the following line from the root directory:
 ```
