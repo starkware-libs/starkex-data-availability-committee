@@ -1,12 +1,13 @@
 version: "3.3"
 services:
   committee-aerospike:
-    image: aerospike/aerospike-server:4.7.0.5
+    image: aerospike/aerospike-server:5.7.0.12
     command: [ "--config-file", "/etc/aerospike.conf" ]
     ports:
       - "3000:3000"
     volumes:
       - ./aerospike.conf:/etc/aerospike.conf:ro
+      - <host volume>:/opt/aerospike/data/
     environment:
       - NAMESPACE=starkware
     ulimits:
