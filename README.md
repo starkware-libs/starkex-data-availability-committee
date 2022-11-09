@@ -5,7 +5,7 @@
 ## Disclaimer
 The source code provided in this repo is meant to serve as a <em>reference implementation</em> for
 anyone who wishes to run a StarkEx data-availability committee node.
-This implementation **should not be used to run a committee node in a production environment!**
+If used on a production system, configure it appropriately to ensure data persistence and continuous running. (Details below).
 
 ## Description
 The Starkware application holds a state of accounts that are updated according to an
