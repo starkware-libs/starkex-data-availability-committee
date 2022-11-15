@@ -169,6 +169,7 @@ class AerospikeStorage(AerospikeThreadedStorageBase):
                 (self.namespace, self.aero_set, bytearray(key)),
                 {"value": bytearray(value)},
                 policy=policy,
+                meta={"ttl": aerospike.TTL_NEVER_EXPIRE},
             )
             return True
         except aerospike.exception.RecordExistsError:
@@ -248,7 +249,12 @@ class AerospikeLayeredStorage(AerospikeThreadedStorageBase):
         try:
             bucket_key = (self.namespace, self.aero_set, bytearray(self.get_bucket_key(key)))
             self.client.map_put(
-                bucket_key, "value", bytearray(key), bytearray(value), policy=policy
+                bucket_key,
+                "value",
+                bytearray(key),
+                bytearray(value),
+                policy=policy,
+                meta={"ttl": aerospike.TTL_NEVER_EXPIRE},
             )
             return True
         except aerospike.exception.RecordExistsError:
