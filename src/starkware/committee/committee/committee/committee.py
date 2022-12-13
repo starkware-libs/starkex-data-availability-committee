@@ -10,6 +10,7 @@ import marshmallow.fields as mfields
 import marshmallow_dataclass
 from marshmallow.decorators import pre_load
 from web3 import eth
+from prometheus_client import start_http_server, Gauge, Counter
 
 from committee.availability_gateway_client import AvailabilityGatewayClient
 from committee.committee_config import CommitteeConfig
@@ -36,6 +37,8 @@ CommitteeObjectInfo = NamedTuple(
     "CommitteeObjectInfo",
     [("state_class", Type[StateBase]), ("tree_height", int), ("tree_class", Type[BinaryFactTree])],
 )
+next_batch_id_gauge = Gauge('committee_next_batch_id', 'Batch id just about to get processed')
+batches_processed_with_errors = Counter('committee_batches_processed_with_errors', "Batches that failed processing")
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -327,6 +330,7 @@ class Committee:
 
         while not self.stopped:
             try:
+                next_batch_id_gauge.set(next_batch_id)
                 availability_update = await self.availability_gateway.get_batch_data(
                     batch_id=next_batch_id, validate_rollup=self.validate_rollup
                 )
@@ -355,6 +359,7 @@ class Committee:
             except Exception as ex:
                 logger.error(f"Got an exception: {ex}")
                 logger.error("Exception details", exc_info=True)
+                batches_processed_with_errors.inc()
                 await asyncio.sleep(self.polling_interval)
 
 
@@ -393,6 +398,13 @@ async def main():
         hash_func=pedersen_hash_func,
         availability_gateway=availability_gateway,
     )
+
+    metrics_config = config.get("METRICS", {})
+    if metrics_config.get("enabled", False):
+        port = 8000
+        logger.info(f"Exposing metrics at {port}")
+        start_http_server(port) 
+
     with service_executor(ProcessPoolExecutor()):
         await committee.run()
 

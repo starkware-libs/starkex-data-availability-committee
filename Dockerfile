@@ -15,3 +15,5 @@ RUN ./build.sh
 WORKDIR /app/
 
 CMD ["/app/build/Release/src/starkware/committee/starkex_committee_exe"]
+
+EXPOSE 8000
