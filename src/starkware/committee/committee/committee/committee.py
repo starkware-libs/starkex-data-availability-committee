@@ -37,8 +37,8 @@ CommitteeObjectInfo = NamedTuple(
     "CommitteeObjectInfo",
     [("state_class", Type[StateBase]), ("tree_height", int), ("tree_class", Type[BinaryFactTree])],
 )
-next_batch_id_gauge = Gauge('committee_next_batch_id', 'Batch id just about to get processed')
-batches_processed_with_errors = Counter('committee_batches_processed_with_errors', "Batches that failed processing")
+next_batch_id_gauge = Gauge(name="committee_next_batch_id", documentation="Id of next batch to get processed'")
+batches_processed_with_errors = Counter(name="committee_batches_processed_with_errors", documentation="Batches that failed processing")
 
 
 @marshmallow_dataclass.dataclass(frozen=True)
@@ -399,11 +399,13 @@ async def main():
         availability_gateway=availability_gateway,
     )
 
-    metrics_config = config.get("METRICS", {})
-    if metrics_config.get("enabled", False):
-        port = 8000
-        logger.info(f"Exposing metrics at {port}")
-        start_http_server(port) 
+    if "METRICS" in config:
+        metrics_config = config.get("METRICS", {})
+        port = metrics_config.get("port", 8000)
+        address = metrics_config.get("address", '0.0.0.0')
+        
+        logger.info(f"Listening on http://${address}:{port}/metrics ")
+        start_http_server(port, address) 
 
     with service_executor(ProcessPoolExecutor()):
         await committee.run()
