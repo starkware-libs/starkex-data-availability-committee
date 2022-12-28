@@ -36,7 +36,7 @@ LOGGING:
       formatter: plaintext
       stream: ext://sys.stdout
   loggers:
-    root:
+    '':
       level: INFO
       handlers: [console]
     committee:
