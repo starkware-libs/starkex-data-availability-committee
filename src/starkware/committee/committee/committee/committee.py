@@ -37,7 +37,7 @@ CommitteeObjectInfo = NamedTuple(
     "CommitteeObjectInfo",
     [("state_class", Type[StateBase]), ("tree_height", int), ("tree_class", Type[BinaryFactTree])],
 )
-next_batch_id_gauge = Gauge(name="committee_next_batch_id", documentation="Id of next batch to get processed'")
+next_batch_id_gauge = Gauge(name="committee_next_batch_id", documentation="Id of next batch to get processed")
 batches_processed_with_errors = Counter(name="committee_batches_processed_with_errors", documentation="Batches that failed processing")
 
 
@@ -403,8 +403,8 @@ async def main():
         metrics_config = config.get("METRICS", {})
         port = metrics_config.get("port", 8000)
         address = metrics_config.get("address", '0.0.0.0')
-        
-        logger.info(f"Listening on http://${address}:{port}/metrics ")
+
+        logger.info(f"Listening on http://{address}:{port}/metrics ")
         start_http_server(port, address) 
 
     with service_executor(ProcessPoolExecutor()):
