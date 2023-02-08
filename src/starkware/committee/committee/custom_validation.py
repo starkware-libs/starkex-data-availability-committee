@@ -19,7 +19,4 @@ async def is_valid(
     this optionally dumps the corresponding serialized batch to storage depending on the value of
     dump_batch.
     """
-    if dump_batch:
-        batch_str = await availability_gateway._get_batch_created(batch_id=batch_id)
-        await storage.set_str(key=batch_created_key(batch_id=batch_id), value=batch_str)
     return True
