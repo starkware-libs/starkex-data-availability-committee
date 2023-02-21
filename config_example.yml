@@ -49,6 +49,10 @@ LOGGING:
       handlers: [console]
       level: DEBUG
 
+METRICS:
+  port: 8000 # remember to tweak Dockerfile after changing this port
+  address: 0.0.0.0
+
 STORAGE:
   class: starkware.storage.aerospike_storage_threadpool.AerospikeLayeredStorage
   config:
